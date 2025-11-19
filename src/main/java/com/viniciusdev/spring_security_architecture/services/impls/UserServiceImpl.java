@@ -2,6 +2,7 @@ package com.viniciusdev.spring_security_architecture.services.impls;
 
 import com.viniciusdev.spring_security_architecture.dtos.request.UpdateUserRequest;
 import com.viniciusdev.spring_security_architecture.dtos.request.UserRequest;
+import com.viniciusdev.spring_security_architecture.dtos.response.PostResponse;
 import com.viniciusdev.spring_security_architecture.dtos.response.UserResponse;
 import com.viniciusdev.spring_security_architecture.entities.Role;
 import com.viniciusdev.spring_security_architecture.entities.User;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -102,6 +104,31 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> me(Authentication authentication) {
+
+        UUID userId = UUID.fromString(authentication.getName());
+
+        User user = getUserOrThrow(userId);
+
+        return ResponseEntity.ok().body(new UserResponse(user.getId(), user.getName(), user.getEmail()));
+    }
+
+    @Override
+    public ResponseEntity<List<PostResponse>> findPosts(UUID id) {
+
+        User user = getUserOrThrow(id);
+
+        return ResponseEntity.ok().body(
+                user.getPosts()
+                        .stream()
+                        .map(post ->
+                                new PostResponse(post.getId(), post.getTitle(), post.getContent(), post.getPublishDate(),
+                                new UserResponse(post.getAuthor().getId(), post.getAuthor().getName(), post.getAuthor().getEmail())))
+                        .toList());
+
     }
 
     private User getUserOrThrow(UUID id) {

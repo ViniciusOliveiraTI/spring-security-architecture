@@ -37,6 +37,9 @@ public class User {
     )
     private Set<Role> roles;
 
+    @OneToMany(mappedBy = "author")
+    private Set<Post> posts;
+
     public User(UUID id, String name, String email, String password) {
         this.id = id;
         this.name = name;

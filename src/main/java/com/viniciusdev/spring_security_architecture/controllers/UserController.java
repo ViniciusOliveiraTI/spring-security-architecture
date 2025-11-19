@@ -1,11 +1,13 @@
 package com.viniciusdev.spring_security_architecture.controllers;
 import com.viniciusdev.spring_security_architecture.dtos.request.UpdateUserRequest;
 import com.viniciusdev.spring_security_architecture.dtos.request.UserRequest;
+import com.viniciusdev.spring_security_architecture.dtos.response.PostResponse;
 import com.viniciusdev.spring_security_architecture.dtos.response.UserResponse;
 import com.viniciusdev.spring_security_architecture.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,6 +25,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> me(Authentication authentication) {
+        return userService.me(authentication);
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyAuthority('admin:read')")
     public ResponseEntity<List<UserResponse>> findAll() {
@@ -33,6 +40,12 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('admin:read') || @userAccessService.isOwner(#id, authentication)")
     public ResponseEntity<UserResponse> findById(@PathVariable UUID id) {
         return userService.findById(id);
+    }
+
+    @GetMapping("/{id}/posts")
+    @PreAuthorize("hasAnyAuthority('admin:read') || @userAccessService.isOwner(#id, authentication)")
+    public ResponseEntity<List<PostResponse>> findPosts(@PathVariable UUID id) {
+        return userService.findPosts(id);
     }
 
     @PostMapping

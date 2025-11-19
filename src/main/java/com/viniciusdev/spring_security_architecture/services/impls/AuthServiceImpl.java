@@ -3,7 +3,6 @@ package com.viniciusdev.spring_security_architecture.services.impls;
 import com.viniciusdev.spring_security_architecture.dtos.request.LoginRequest;
 import com.viniciusdev.spring_security_architecture.dtos.response.LoginResponse;
 import com.viniciusdev.spring_security_architecture.entities.Permission;
-import com.viniciusdev.spring_security_architecture.entities.Role;
 import com.viniciusdev.spring_security_architecture.entities.User;
 import com.viniciusdev.spring_security_architecture.repositories.UserRepository;
 import com.viniciusdev.spring_security_architecture.services.AuthService;
@@ -18,9 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -54,16 +51,12 @@ public class AuthServiceImpl implements AuthService {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
-    public Set<String> getUserAuthorities(User user) {
-        return Stream.concat(
-                user.getRoles()
-                        .stream()
-                        .map(Role::getName),
-                user.getRoles()
+    public String getUserAuthorities(User user) {
+        return user.getRoles()
                         .stream()
                         .flatMap(role -> role.getPermissions().stream())
                         .map(Permission::getName)
-        ).collect(Collectors.toSet());
+                        .collect(Collectors.joining(" "));
     }
 
     public JwtClaimsSet toClaims(User user) {

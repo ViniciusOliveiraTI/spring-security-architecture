@@ -24,17 +24,21 @@ public class AppConfig implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        Permission p1 = new Permission(null, "read");
-        Permission p2 = new Permission(null, "write");
-        Permission p3 = new Permission(null, "delete");
+        Permission p1 = new Permission(null, "user:read");
+        Permission p2 = new Permission(null, "user:write");
+        Permission p3 = new Permission(null, "user:delete");
 
         permissionRepository.saveAll(Arrays.asList(p1, p2, p3));
 
         Role basicRole = new Role(null, "USER");
 
-        basicRole.setPermissions(Set.of(p1, p2, p3));
+        basicRole.setPermissions(Set.of(p1, p2));
 
-        roleRepository.save(basicRole);
+        Role adminRole = new Role(null, "ADMIN");
+
+        adminRole.setPermissions(Set.of(p1, p2, p3));
+
+        roleRepository.saveAll(Arrays.asList(basicRole, adminRole));
 
     }
 

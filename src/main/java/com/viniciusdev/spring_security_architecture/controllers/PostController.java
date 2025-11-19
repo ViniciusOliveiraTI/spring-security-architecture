@@ -39,7 +39,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> create(@RequestBody CreatePostRequest request, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<PostResponse> create(@Valid @RequestBody CreatePostRequest request, UriComponentsBuilder uriBuilder) {
         return postService.create(request, uriBuilder);
     }
 

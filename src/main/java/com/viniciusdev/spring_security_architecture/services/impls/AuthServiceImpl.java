@@ -4,6 +4,8 @@ import com.viniciusdev.spring_security_architecture.dtos.request.LoginRequest;
 import com.viniciusdev.spring_security_architecture.dtos.response.LoginResponse;
 import com.viniciusdev.spring_security_architecture.entities.Permission;
 import com.viniciusdev.spring_security_architecture.entities.User;
+import com.viniciusdev.spring_security_architecture.exceptions.EmailAlreadyExistsException;
+import com.viniciusdev.spring_security_architecture.exceptions.InvalidCredentialsException;
 import com.viniciusdev.spring_security_architecture.repositories.UserRepository;
 import com.viniciusdev.spring_security_architecture.services.AuthService;
 import org.springframework.http.HttpStatus;
@@ -38,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"));
 
-        if (!isLoginCorrect(request.password(), user.getPassword())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+        if (!isLoginCorrect(request.password(), user.getPassword())) throw new InvalidCredentialsException("Invalid credentials");
 
         JwtClaimsSet claims = toClaims(user);
 

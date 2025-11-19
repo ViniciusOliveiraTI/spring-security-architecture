@@ -6,13 +6,12 @@ import com.viniciusdev.spring_security_architecture.dtos.response.PostResponse;
 import com.viniciusdev.spring_security_architecture.dtos.response.UserResponse;
 import com.viniciusdev.spring_security_architecture.entities.Post;
 import com.viniciusdev.spring_security_architecture.entities.User;
+import com.viniciusdev.spring_security_architecture.exceptions.NotFoundException;
 import com.viniciusdev.spring_security_architecture.repositories.PostRepository;
 import com.viniciusdev.spring_security_architecture.repositories.UserRepository;
 import com.viniciusdev.spring_security_architecture.services.PostService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -58,7 +57,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<PostResponse> create(CreatePostRequest request, UriComponentsBuilder uriBuilder) {
 
-        User author = getUserOrThrow(request.authorId());
+        User author = getUserOrThrow(UUID.fromString(request.authorId()));
 
         Post newPost = new Post();
 
@@ -100,7 +99,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public ResponseEntity<Void> deleteById(UUID id) {
 
-        if (postRepository.existsById(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with id '%s' not found".formatted(id));
+        if (postRepository.existsById(id)) throw new NotFoundException("Post with id '%s' not found".formatted(id));
 
         postRepository.deleteById(id);
 
@@ -121,12 +120,12 @@ public class PostServiceImpl implements PostService {
 
     private Post getPostOrThrow(UUID id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with id '%s' not found".formatted(id)));
+                .orElseThrow(() -> new NotFoundException("Post with id '%s' not found".formatted(id)));
     }
 
     private User getUserOrThrow(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id '%s' not found".formatted(id)));
+                .orElseThrow(() -> new NotFoundException("User with id '%s' not found".formatted(id)));
     }
 
 }
